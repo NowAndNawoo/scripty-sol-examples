@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "solady/src/utils/Base64.sol";
-import "solady/src/utils/SSTORE2.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "solady/src/utils/Base64.sol";
+import {SSTORE2} from "solady/src/utils/SSTORE2.sol";
+import {IScriptyBuilder, WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {ScriptyStorage} from "scripty.sol/contracts/scripty/ScriptyStorage.sol";
+import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
 
 error DataIsFrozen();
 error TokenAlreadyExists();
@@ -13,18 +16,114 @@ error TokenDoesNotExist();
 error TooManyValues();
 error DataIsEmpty();
 
+struct TokenData {
+    string name;
+    string description;
+    string scriptName; // EthFS
+}
+
 contract Example1 is ERC721, Ownable {
-    constructor() ERC721("Example1", "EXAMPLE1") {}
+    address public ethfsFileStorageAddress;
+    address public scriptyStorageAddress;
+    address public scriptyBuilderAddress;
 
-    string public constant DESCRIPTION = "description";
+    mapping(uint => TokenData) private tokens; // tokenID => TokenData;
 
-    function mint(uint256 tokenId) public onlyOwner {
+    constructor(
+        address _ethfsFileStorageAddress,
+        address _scriptyStorageAddress,
+        address _scriptyBuilderAddress
+    ) ERC721("scripty.sol example1", "SSE1") {
+        setScriptyAddresses(_ethfsFileStorageAddress, _scriptyStorageAddress, _scriptyBuilderAddress);
+    }
+
+    function setScriptyAddresses(
+        address _ethfsFileStorageAddress,
+        address _scriptyStorageAddress,
+        address _scriptyBuilderAddress
+    ) public onlyOwner {
+        ethfsFileStorageAddress = _ethfsFileStorageAddress;
+        scriptyStorageAddress = _scriptyStorageAddress;
+        scriptyBuilderAddress = _scriptyBuilderAddress;
+    }
+
+    function mint(
+        uint256 tokenId,
+        string memory name,
+        string memory description,
+        string memory scriptName
+    ) public onlyOwner {
+        tokens[tokenId].name = name;
+        tokens[tokenId].description = description;
+        tokens[tokenId].scriptName = scriptName;
         _mint(msg.sender, tokenId);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         if (!_exists(tokenId)) revert TokenDoesNotExist();
-        string memory json = "{name:'Example1'}";
-        return string.concat("data:application/json;base64,", Base64.encode(bytes(json)));
+        TokenData storage token = tokens[tokenId];
+
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
+        requests[0].name = "scriptyBase";
+        requests[0].wrapType = 0; // <script>[script]</script>
+        requests[0].contractAddress = scriptyStorageAddress;
+
+        requests[1].name = "p5-v1.5.0.min.js.gz";
+        requests[1].wrapType = 2; // gzip
+        requests[1].contractAddress = ethfsFileStorageAddress;
+
+        requests[2].name = "gunzipScripts-0.0.1.js";
+        requests[2].wrapType = 1; // b64
+        requests[2].contractAddress = ethfsFileStorageAddress;
+
+        requests[3].name = token.scriptName;
+        requests[3].wrapType = 0;
+        requests[3].contractAddress = scriptyStorageAddress;
+
+        IScriptyBuilder builder = IScriptyBuilder(scriptyBuilderAddress);
+        uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);
+        bytes memory html = builder.getHTMLWrappedURLSafe(requests, bufferSize);
+        return
+            string.concat(
+                "data:application/json,",
+                "%7B%22name%22%3A%22", //'{"name":"',
+                token.name,
+                "%22%2C%22description%22%3A%22", //'","description":"',
+                token.description,
+                "%22%2C%22animation_url%22%3A%22", //'","animation_url":"',
+                string(html),
+                "%22%7D" //'"}'
+            );
+
+        // out of gas
+        // WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
+        // requests[0].name = "scriptyBase";
+        // requests[0].wrapType = 0; // <script>[script]</script>
+        // requests[0].contractAddress = scriptyStorageAddress;
+
+        // requests[1].name = "p5-v1.5.0.min.js.gz";
+        // requests[1].wrapType = 2; // gzip
+        // requests[1].contractAddress = ethfsFileStorageAddress;
+
+        // requests[2].name = "gunzipScripts-0.0.1.js";
+        // requests[2].wrapType = 1; // b64
+        // requests[2].contractAddress = scriptyStorageAddress;
+
+        // requests[3].name = token.scriptName;
+        // requests[3].wrapType = 1; // b64
+        // requests[3].contractAddress = scriptyStorageAddress;
+
+        // IScriptyBuilder builder = IScriptyBuilder(scriptyBuilderAddress);
+        // uint256 bufferSize = builder.getBufferSizeForHTMLWrapped(requests);
+        // bytes memory html = builder.getEncodedHTMLWrapped(requests, bufferSize);
+        // bytes memory metadata = abi.encodePacked(
+        //     '{"name":"scripty.sol Example1", "description":"',
+        //     token.description,
+        //     '","animation_url":"',
+        //     html,
+        //     '"}'
+        // );
+
+        // return string.concat("data:application/json;base64,", Base64.encode(metadata));
     }
 }
