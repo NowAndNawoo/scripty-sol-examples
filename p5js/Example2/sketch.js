@@ -1,8 +1,8 @@
-// TODO: グローバル変数 tokenIDをseedとしてランダム生成
-
 function setup() {
   createCanvas(800, 800);
   noLoop();
+  console.log({ tokenId });
+  randomSeed(tokenId);
 }
 
 const COUNT = 60;

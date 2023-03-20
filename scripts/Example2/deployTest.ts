@@ -7,6 +7,7 @@ import {
   SCRIPTY_STORAGE_ADDRESS_GOERLI,
 } from '../lib/constants';
 import { waitDeployed, waitTx } from '../lib/common';
+import { uploadToScriptStorage } from '../lib/uploadFile';
 
 async function main() {
   // あらかじめEthFSにアップロードしておく(注意: Base64 Encodeされる)
@@ -16,6 +17,9 @@ async function main() {
   // signer
   const [signer] = await ethers.getSigners();
   console.log('signer:', signer.address);
+
+  // upload script
+  await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, path, scriptName);
 
   // deploy
   const contract = await ethers
@@ -36,10 +40,11 @@ async function main() {
   // check tokenURI
   const uri = await contract.tokenURI(1);
   writeFileSync('./output/Example2_1_token_uri.txt', uri);
+  // const json = Buffer.from(uri.slice('data:application/json;base64,'.length), 'base64').toString();
   const json = decodeURIComponent(uri.slice('data:application/json,'.length));
   writeFileSync('./output/Example2_1_json.json', json);
   const metadata = JSON.parse(json);
-  const html = decodeURIComponent(metadata.animation_url.slice('data:text/html,'.length));
+  const html = Buffer.from(metadata.animation_url.slice('data:text/html;base64,'.length), 'base64');
   writeFileSync('./output/Example2_1_animation_url.html', html);
 
   console.log('done!');

@@ -44,10 +44,11 @@ contract Example2 is ERC721, Ownable {
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         if (!_exists(tokenId)) revert TokenDoesNotExist();
+        string memory tokenIdStr = tokenId.toString();
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](5);
         requests[0].name = "scriptyBase";
-        requests[0].wrapType = 0; // <script>[script]</script>
+        requests[0].wrapType = 0; // raw
         requests[0].contractAddress = scriptyStorageAddress;
 
         requests[1].name = "p5-v1.5.0.min.js.gz";
@@ -58,23 +59,32 @@ contract Example2 is ERC721, Ownable {
         requests[2].wrapType = 1; // b64
         requests[2].contractAddress = ethfsFileStorageAddress;
 
-        requests[3].name = "nawoo/p5-example2/sketch.js";
-        requests[3].wrapType = 1; // b64
-        requests[3].contractAddress = ethfsFileStorageAddress;
+        requests[3].wrapType = 0; // raw
+        requests[3].scriptContent = abi.encodePacked("const tokenId=", tokenIdStr, ";");
+
+        requests[4].name = "nawoo/p5-example2/sketch.js";
+        requests[4].wrapType = 0; // raw
+        requests[4].contractAddress = scriptyStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
-        uint256 bufferSize = builder.getBufferSizeForHTMLWrapped(requests);
+
+        // uint256 bufferSize = builder.getBufferSizeForHTMLWrapped(requests);
+        // bytes memory html = builder.getEncodedHTMLWrapped(requests, bufferSize);
+        uint256 bufferSize = builder.getBufferSizeForEncodedHTMLWrapped(requests);
         bytes memory html = builder.getEncodedHTMLWrapped(requests, bufferSize);
-        bytes memory metadata = abi.encodePacked(
+
+        bytes memory name = abi.encodePacked("Example2 #", tokenIdStr);
+        bytes memory description = "Example2 description";
+        bytes memory metadata = bytes.concat(
             '{"name":"',
-            "Example2 #",
-            tokenId.toString(),
+            name,
             '", "description":"',
-            "example2 description", // description
+            description,
             '","animation_url":"',
             html,
             '"}'
         );
-        return string.concat("data:application/json;base64,", Base64.encode(metadata));
+        // return string.concat("data:application/json;base64,", Base64.encode(metadata));
+        return string.concat("data:application/json,", string(metadata));
     }
 }
