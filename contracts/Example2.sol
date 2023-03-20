@@ -67,24 +67,20 @@ contract Example2 is ERC721, Ownable {
         requests[4].contractAddress = scriptyStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
-
-        // uint256 bufferSize = builder.getBufferSizeForHTMLWrapped(requests);
-        // bytes memory html = builder.getEncodedHTMLWrapped(requests, bufferSize);
-        uint256 bufferSize = builder.getBufferSizeForEncodedHTMLWrapped(requests);
-        bytes memory html = builder.getEncodedHTMLWrapped(requests, bufferSize);
-
-        bytes memory name = abi.encodePacked("Example2 #", tokenIdStr);
-        bytes memory description = "Example2 description";
-        bytes memory metadata = bytes.concat(
-            '{"name":"',
-            name,
-            '", "description":"',
-            description,
-            '","animation_url":"',
-            html,
-            '"}'
-        );
-        // return string.concat("data:application/json;base64,", Base64.encode(metadata));
-        return string.concat("data:application/json,", string(metadata));
+        uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);
+        bytes memory html = builder.getHTMLWrappedURLSafe(requests, bufferSize);
+        string memory name = string.concat("Example2 #", tokenIdStr);
+        string memory description = "Example2 description";
+        return
+            string.concat(
+                "data:application/json,",
+                "%7B%22name%22%3A%22", //'{"name":"',
+                name,
+                "%22%2C%22description%22%3A%22", //'","description":"',
+                description,
+                "%22%2C%22animation_url%22%3A%22", //'","animation_url":"',
+                string(html),
+                "%22%7D" //'"}'
+            );
     }
 }

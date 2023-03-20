@@ -1,6 +1,5 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { ethers } from 'hardhat';
-import { ScriptyStorage } from '../../typechain-types';
 import {
   ETHFS_STORAGE_ADDRESS_GOERLI,
   SCRIPTY_BUILDER_ADDRESS_GOERLI,
@@ -10,7 +9,6 @@ import { waitDeployed, waitTx } from '../lib/common';
 import { uploadToScriptStorage } from '../lib/uploadFile';
 
 async function main() {
-  // あらかじめEthFSにアップロードしておく(注意: Base64 Encodeされる)
   const scriptName = 'nawoo/p5-example2/sketch.js';
   const path = './p5js/Example2/sketch.js';
 
@@ -40,11 +38,10 @@ async function main() {
   // check tokenURI
   const uri = await contract.tokenURI(1);
   writeFileSync('./output/Example2_1_token_uri.txt', uri);
-  // const json = Buffer.from(uri.slice('data:application/json;base64,'.length), 'base64').toString();
   const json = decodeURIComponent(uri.slice('data:application/json,'.length));
   writeFileSync('./output/Example2_1_json.json', json);
   const metadata = JSON.parse(json);
-  const html = Buffer.from(metadata.animation_url.slice('data:text/html;base64,'.length), 'base64');
+  const html = decodeURIComponent(metadata.animation_url.slice('data:text/html,'.length));
   writeFileSync('./output/Example2_1_animation_url.html', html);
 
   console.log('done!');
