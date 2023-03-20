@@ -62,8 +62,8 @@ contract Example1 is ERC721, Ownable {
         requests[2].contractAddress = ethfsFileStorageAddress;
 
         requests[3].name = token.scriptName;
-        requests[3].wrapType = 0; // raw
-        requests[3].contractAddress = scriptyStorageAddress;
+        requests[3].wrapType = 1; // b64
+        requests[3].contractAddress = ethfsFileStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
         uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);

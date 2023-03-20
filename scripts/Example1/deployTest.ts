@@ -1,12 +1,13 @@
 import { writeFileSync } from 'fs';
 import { ethers } from 'hardhat';
 import {
+  ETHFS_FILE_STORE_GOERLI,
   ETHFS_STORAGE_ADDRESS_GOERLI,
   SCRIPTY_BUILDER_ADDRESS_GOERLI,
   SCRIPTY_STORAGE_ADDRESS_GOERLI,
 } from '../lib/constants';
 import { waitDeployed, waitTx } from '../lib/common';
-import { uploadToScriptStorage } from '../lib/uploadFile';
+import { uploadToEthFS, uploadToScriptStorage } from '../lib/uploadFile';
 
 async function main() {
   const token1 = {
@@ -14,6 +15,7 @@ async function main() {
     description: 'sketch1 description',
     scriptName: 'nawoo/p5-example1/sketch1.js',
     path: './p5js/Example1/sketch1.js',
+    license: 'CC0',
   };
 
   // signer
@@ -21,7 +23,15 @@ async function main() {
   console.log('signer:', signer.address);
 
   // upload script
-  await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, token1.path, token1.scriptName);
+  await uploadToEthFS(
+    ETHFS_FILE_STORE_GOERLI,
+    signer,
+    token1.path,
+    token1.scriptName,
+    { type: 'text/javascript', license: token1.license },
+    true
+  );
+  // await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, token1.path, token1.scriptName);
 
   // deploy
   const contract = await ethers
