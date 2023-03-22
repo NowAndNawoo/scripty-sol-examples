@@ -26,7 +26,7 @@ contract Example1 is ERC721, Ownable {
         address _ethfsFileStorageAddress,
         address _scriptyStorageAddress,
         address _scriptyBuilderAddress
-    ) ERC721("scripty.sol example1", "SSE1") {
+    ) ERC721("Example1", "SSE1") {
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
         scriptyStorageAddress = _scriptyStorageAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
@@ -62,8 +62,8 @@ contract Example1 is ERC721, Ownable {
         requests[2].contractAddress = ethfsFileStorageAddress;
 
         requests[3].name = token.scriptName;
-        requests[3].wrapType = 1; // b64
-        requests[3].contractAddress = ethfsFileStorageAddress;
+        requests[3].wrapType = 0; // raw
+        requests[3].contractAddress = scriptyStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
         uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);

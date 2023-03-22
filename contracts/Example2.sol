@@ -4,16 +4,11 @@ pragma solidity 0.8.17;
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {Base64} from "solady/src/utils/Base64.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {ScriptyStorage} from "scripty.sol/contracts/scripty/ScriptyStorage.sol";
 import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
 
-error DataIsFrozen();
-error TokenAlreadyExists();
 error TokenDoesNotExist();
-error TooManyValues();
-error DataIsEmpty();
 
 struct TokenData {
     string name;
@@ -24,6 +19,7 @@ struct TokenData {
 contract Example2 is ERC721, Ownable {
     using Strings for uint;
 
+    uint private nextTokenId = 1;
     address public immutable ethfsFileStorageAddress;
     address public immutable scriptyStorageAddress;
     address public immutable scriptyBuilderAddress;
@@ -32,13 +28,18 @@ contract Example2 is ERC721, Ownable {
         address _ethfsFileStorageAddress,
         address _scriptyStorageAddress,
         address _scriptyBuilderAddress
-    ) ERC721("scripty.sol example2", "SSE2") {
+    ) ERC721("Example2", "SSE2") {
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
         scriptyStorageAddress = _scriptyStorageAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
+        for (uint256 i = 0; i < 5; i++) {
+            mint();
+        }
     }
 
-    function mint(uint256 tokenId) public onlyOwner {
+    function mint() public onlyOwner {
+        uint tokenId = nextTokenId;
+        nextTokenId++;
         _mint(msg.sender, tokenId);
     }
 
@@ -62,9 +63,9 @@ contract Example2 is ERC721, Ownable {
         requests[3].wrapType = 0; // raw
         requests[3].scriptContent = abi.encodePacked("const tokenId=", tokenIdStr, ";");
 
-        requests[4].name = "nawoo/p5-example2/sketch.js";
-        requests[4].wrapType = 0; // raw
-        requests[4].contractAddress = scriptyStorageAddress;
+        requests[4].name = "sketch.js";
+        requests[4].wrapType = 1; // b64
+        requests[4].contractAddress = ethfsFileStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
         uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);

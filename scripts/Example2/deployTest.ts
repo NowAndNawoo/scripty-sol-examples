@@ -5,19 +5,12 @@ import {
   SCRIPTY_BUILDER_ADDRESS_GOERLI,
   SCRIPTY_STORAGE_ADDRESS_GOERLI,
 } from '../lib/constants';
-import { waitDeployed, waitTx } from '../lib/common';
-import { uploadToScriptStorage } from '../lib/uploadFile';
+import { waitDeployed } from '../lib/common';
 
 async function main() {
-  const scriptName = 'nawoo/p5-example2/sketch.js';
-  const path = './p5js/Example2/sketch.js';
-
   // signer
   const [signer] = await ethers.getSigners();
   console.log('signer:', signer.address);
-
-  // upload script
-  await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, path, scriptName);
 
   // deploy
   const contract = await ethers
@@ -26,10 +19,6 @@ async function main() {
       factory.deploy(ETHFS_STORAGE_ADDRESS_GOERLI, SCRIPTY_STORAGE_ADDRESS_GOERLI, SCRIPTY_BUILDER_ADDRESS_GOERLI)
     );
   await waitDeployed('Example2', contract);
-
-  // mint
-  const txMint = await contract.mint(1);
-  await waitTx('mint', txMint);
 
   // estimateGas
   const gas = await contract.estimateGas.tokenURI(1);

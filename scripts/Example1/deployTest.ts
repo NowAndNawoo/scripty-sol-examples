@@ -1,16 +1,16 @@
 import { writeFileSync } from 'fs';
 import { ethers } from 'hardhat';
 import {
-  ETHFS_FILE_STORE_GOERLI,
   ETHFS_STORAGE_ADDRESS_GOERLI,
   SCRIPTY_BUILDER_ADDRESS_GOERLI,
   SCRIPTY_STORAGE_ADDRESS_GOERLI,
 } from '../lib/constants';
 import { waitDeployed, waitTx } from '../lib/common';
-import { uploadToEthFS, uploadToScriptStorage } from '../lib/uploadFile';
+import { uploadToScriptStorage } from '../lib/uploadFile';
 
 async function main() {
   const token1 = {
+    tokenId: 1,
     tokenName: 'sketch1',
     description: 'sketch1 description',
     scriptName: 'nawoo/p5-example1/sketch1.js',
@@ -23,15 +23,7 @@ async function main() {
   console.log('signer:', signer.address);
 
   // upload script
-  await uploadToEthFS(
-    ETHFS_FILE_STORE_GOERLI,
-    signer,
-    token1.path,
-    token1.scriptName,
-    { type: 'text/javascript', license: token1.license },
-    true
-  );
-  // await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, token1.path, token1.scriptName);
+  await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, token1.path, token1.scriptName);
 
   // deploy
   const contract = await ethers
@@ -43,8 +35,8 @@ async function main() {
 
   // mint
   const txMint = await contract.mint(
-    1,
-    encodeURIComponent(token1.tokenName), // URLエンコード
+    token1.tokenId,
+    encodeURIComponent(token1.tokenName),
     encodeURIComponent(token1.description),
     token1.scriptName
   );
