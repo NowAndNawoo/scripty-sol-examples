@@ -1,37 +1,25 @@
+let x, y;
+let xSpeed, ySpeed;
+let c;
+const r = 150;
+
 function setup() {
-  createCanvas(800, 800);
-  noLoop();
-  console.log({ tokenId });
+  createCanvas(windowWidth, windowHeight);
+  x = width / 2;
+  y = height / 2;
   randomSeed(tokenId);
-}
-
-const COUNT = 60;
-const R = 300;
-
-const N = 23;
-const M = 60;
-
-function getPoints() {
-  return [...Array(COUNT).keys()].map((i) => {
-    const x = cos((TAU * i * N) / M) * R;
-    const y = sin((TAU * i * N) / M) * R;
-    return [x, y];
-  });
+  xSpeed = random(-5, 5);
+  ySpeed = random(-5, 5);
+  c = color(random(255), random(255), random(255));
+  fill(c);
+  console.log({ tokenId, color: c.toString(), xSpeed, ySpeed });
 }
 
 function draw() {
-  const pts = getPoints();
-  background(222);
-  stroke('blue');
-
-  // 線
-  translate(width / 2, height / 2);
-  noFill();
-  beginShape();
-  pts.forEach((xy) => vertex(...xy));
-  endShape(CLOSE);
-
-  // 点
-  fill('blue');
-  pts.forEach((xy) => circle(...xy, 5));
+  background(255);
+  x += xSpeed;
+  y += ySpeed;
+  if (x < r || x > width - r) xSpeed = -xSpeed;
+  if (y < r || y > height - r) ySpeed = -ySpeed;
+  ellipse(x, y, r * 2);
 }
