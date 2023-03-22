@@ -17,7 +17,7 @@ struct TokenData {
     string scriptName;
 }
 
-contract Example2 is ERC721, Ownable {
+contract Example2B is ERC721, Ownable {
     using Strings for uint;
 
     uint private nextTokenId = 1;
@@ -29,7 +29,7 @@ contract Example2 is ERC721, Ownable {
         address _ethfsFileStorageAddress,
         address _scriptyStorageAddress,
         address _scriptyBuilderAddress
-    ) ERC721("Example2", "SSE2") {
+    ) ERC721("Example2B", "SSE2B") {
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
         scriptyStorageAddress = _scriptyStorageAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
