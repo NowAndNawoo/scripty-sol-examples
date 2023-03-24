@@ -48,22 +48,18 @@ contract Example1 is ERC721, Ownable {
         if (!_exists(tokenId)) revert TokenDoesNotExist();
         TokenData storage token = tokens[tokenId];
 
-        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](4);
-        requests[0].name = "scriptyBase";
-        requests[0].wrapType = 0; // <script>[script]</script>
-        requests[0].contractAddress = scriptyStorageAddress;
+        WrappedScriptRequest[] memory requests = new WrappedScriptRequest[](3);
+        requests[0].name = "p5-v1.5.0.min.js.gz";
+        requests[0].wrapType = 2; // gzip
+        requests[0].contractAddress = ethfsFileStorageAddress;
 
-        requests[1].name = "p5-v1.5.0.min.js.gz";
-        requests[1].wrapType = 2; // gzip
+        requests[1].name = "gunzipScripts-0.0.1.js";
+        requests[1].wrapType = 1; // b64
         requests[1].contractAddress = ethfsFileStorageAddress;
 
-        requests[2].name = "gunzipScripts-0.0.1.js";
-        requests[2].wrapType = 1; // b64
-        requests[2].contractAddress = ethfsFileStorageAddress;
-
-        requests[3].name = token.scriptName;
-        requests[3].wrapType = 0; // raw
-        requests[3].contractAddress = scriptyStorageAddress;
+        requests[2].name = token.scriptName;
+        requests[2].wrapType = 0; // raw
+        requests[2].contractAddress = scriptyStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
         uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);
