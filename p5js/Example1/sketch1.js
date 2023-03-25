@@ -6,10 +6,9 @@ function setup() {
   rectMode(CENTER);
 }
 
-const xCount = 20;
-const yCount = 20;
-
 function draw() {
+  const xCount = 20;
+  const yCount = 20;
   const side = width / xCount;
   background(color(85, 10, 100));
   for (let y = 0; y < yCount; y++) {
