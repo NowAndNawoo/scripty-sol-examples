@@ -13,10 +13,11 @@ function setup() {
   colorMode(HSB, 360, 100, 100, 100);
   noStroke();
   randomSeed(tokenId);
+  random();
   fx = Math.floor(random(9));
-  fy = Math.floor(random(8));
+  fy = Math.floor(random(9));
   fz = Math.floor(random(9));
-  is3D = random() < 0.2;
+  is3D = random() > 0.9;
   r = random(5, 10);
   console.log({ tokenId, fx, fy, fz, is3D, r });
 }
@@ -28,7 +29,7 @@ function getPos(f, a, b, t) {
     case 1:
       return sin(a + b) * cos(b + t);
     case 2:
-      return sin(a + b);
+      return sin(a + b + t);
     case 3:
       return sin(a - b) * cos(a + t);
     case 4:

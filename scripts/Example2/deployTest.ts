@@ -10,7 +10,7 @@ import { uploadToScriptStorage } from '../lib/uploadFile';
 
 async function main() {
   const token = {
-    scriptName: 'nawoo-example2-sketch.js' + '1',
+    scriptName: 'nawoo-example2-sketch.js' + new Date().getTime(),
     path: './p5js/Example2/sketch.js',
   };
 
