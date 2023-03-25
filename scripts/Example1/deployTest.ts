@@ -10,29 +10,30 @@ import { waitDeployed, waitTx } from '../lib/common';
 import { uploadToEthFS } from '../lib/uploadFile';
 
 async function main() {
+  const dummy = new Date().getTime().toString();
   const tokens = [
     {
       tokenId: 1,
       tokenName: 'sketch1',
       description: 'scripty.sol Example1 sketch1',
-      scriptName: 'nawoo-example1-sketch1.js',
-      path: './p5js/Example1/sketch1.js',
+      scriptName: 'nawoo-example1-sketch1.js' + dummy,
+      path: './p5js/Example1/nawoo-example1-sketch1.js',
       license: 'CC0',
     },
     {
       tokenId: 2,
       tokenName: 'sketch2',
       description: 'scripty.sol Example1 sketch2',
-      scriptName: 'nawoo-example1-sketch2.js',
-      path: './p5js/Example1/sketch2.js',
+      scriptName: 'nawoo-example1-sketch2.js' + dummy,
+      path: './p5js/Example1/nawoo-example1-sketch2.js',
       license: 'CC0',
     },
     {
       tokenId: 3,
       tokenName: 'sketch3',
       description: 'scripty.sol Example1 sketch3',
-      scriptName: 'nawoo-example1-sketch3.js',
-      path: './p5js/Example1/sketch3.js',
+      scriptName: 'nawoo-example1-sketch3.js' + dummy,
+      path: './p5js/Example1/nawoo-example1-sketch3.js',
       license: 'CC0',
     },
   ];
