@@ -23,21 +23,24 @@ contract Example2 is ERC721, Ownable {
     address public immutable ethfsFileStorageAddress;
     address public immutable scriptyStorageAddress;
     address public immutable scriptyBuilderAddress;
+    string public sketchName;
 
     constructor(
         address _ethfsFileStorageAddress,
         address _scriptyStorageAddress,
-        address _scriptyBuilderAddress
+        address _scriptyBuilderAddress,
+        string memory _sketchName
     ) ERC721("Example2", "SSE2") {
         ethfsFileStorageAddress = _ethfsFileStorageAddress;
         scriptyStorageAddress = _scriptyStorageAddress;
         scriptyBuilderAddress = _scriptyBuilderAddress;
+        sketchName = _sketchName;
         for (uint256 i = 0; i < 5; i++) {
             mint();
         }
     }
 
-    function mint() public onlyOwner {
+    function mint() public {
         uint tokenId = nextTokenId;
         nextTokenId++;
         _mint(msg.sender, tokenId);
@@ -59,15 +62,16 @@ contract Example2 is ERC721, Ownable {
         requests[2].wrapType = 0; // raw
         requests[2].scriptContent = abi.encodePacked("const tokenId=", tokenIdStr, ";");
 
-        requests[3].name = "sketch.js";
-        requests[3].wrapType = 1; // b64
-        requests[3].contractAddress = ethfsFileStorageAddress;
+        requests[3].name = sketchName;
+        requests[3].wrapType = 0; // raw
+        requests[3].contractAddress = scriptyStorageAddress;
 
         ScriptyBuilder builder = ScriptyBuilder(scriptyBuilderAddress);
         uint256 bufferSize = builder.getBufferSizeForURLSafeHTMLWrapped(requests);
         bytes memory html = builder.getHTMLWrappedURLSafe(requests, bufferSize);
-        string memory name = string.concat("Example2 #", tokenIdStr);
-        string memory description = "Example2 description";
+        string memory name = string.concat("Dancing Spheres #", tokenIdStr);
+        string
+            memory description = "Fully on-chain generative art created with p5.js, featuring numerous spheres exhibiting a variety of dynamic movements.";
         return
             string.concat(
                 "data:application/json,",

@@ -1,29 +1,60 @@
 import { writeFileSync } from 'fs';
 import { ethers } from 'hardhat';
 import {
+  ETHFS_FILE_STORE_GOERLI,
   ETHFS_STORAGE_ADDRESS_GOERLI,
   SCRIPTY_BUILDER_ADDRESS_GOERLI,
   SCRIPTY_STORAGE_ADDRESS_GOERLI,
 } from '../lib/constants';
 import { waitDeployed, waitTx } from '../lib/common';
-import { uploadToScriptStorage } from '../lib/uploadFile';
+import { uploadToEthFS } from '../lib/uploadFile';
 
 async function main() {
-  const token1 = {
-    tokenId: 1,
-    tokenName: 'sketch1',
-    description: 'sketch1 description',
-    scriptName: 'nawoo/p5-example1/sketch1.js',
-    path: './p5js/Example1/sketch1.js',
-    license: 'CC0',
-  };
+  const tokens = [
+    {
+      tokenId: 1,
+      tokenName: 'sketch1',
+      description: 'scripty.sol Example1 sketch1',
+      scriptName: 'nawoo-example1-sketch1.js',
+      path: './p5js/Example1/sketch1.js',
+      license: 'CC0',
+    },
+    {
+      tokenId: 2,
+      tokenName: 'sketch2',
+      description: 'scripty.sol Example1 sketch2',
+      scriptName: 'nawoo-example1-sketch2.js',
+      path: './p5js/Example1/sketch2.js',
+      license: 'CC0',
+    },
+    {
+      tokenId: 3,
+      tokenName: 'sketch3',
+      description: 'scripty.sol Example1 sketch3',
+      scriptName: 'nawoo-example1-sketch3.js',
+      path: './p5js/Example1/sketch3.js',
+      license: 'CC0',
+    },
+  ];
 
   // signer
   const [signer] = await ethers.getSigners();
   console.log('signer:', signer.address);
 
   // upload script
-  await uploadToScriptStorage(SCRIPTY_STORAGE_ADDRESS_GOERLI, signer, token1.path, token1.scriptName);
+  for (const token of tokens) {
+    await uploadToEthFS(
+      ETHFS_FILE_STORE_GOERLI,
+      signer,
+      token.path,
+      token.scriptName,
+      {
+        type: 'text/javascript',
+        license: token.license,
+      },
+      true
+    );
+  }
 
   // deploy
   const contract = await ethers
@@ -34,26 +65,33 @@ async function main() {
   await waitDeployed('Example1', contract);
 
   // mint
-  const txMint = await contract.mint(
-    token1.tokenId,
-    encodeURIComponent(token1.tokenName),
-    encodeURIComponent(token1.description),
-    token1.scriptName
-  );
-  await waitTx('mint', txMint);
+  for (const token of tokens) {
+    const txMint = await contract.mint(
+      token.tokenId,
+      encodeURIComponent(token.tokenName),
+      encodeURIComponent(token.description),
+      token.scriptName
+    );
+    await waitTx('mint', txMint);
+  }
 
   // estimateGas
-  const gas = await contract.estimateGas.tokenURI(1);
+  const gas = await contract.estimateGas.tokenURI(3);
   console.log('estimateGas:', gas.toNumber());
 
   // check tokenURI
-  const uri = await contract.tokenURI(1);
-  writeFileSync('./output/Example1_1_token_uri.txt', uri);
-  const json = decodeURIComponent(uri.slice('data:application/json,'.length));
-  writeFileSync('./output/Example1_1_json.json', json);
-  const metadata = JSON.parse(json);
-  const html = decodeURIComponent(metadata.animation_url.slice('data:text/html,'.length));
-  writeFileSync('./output/Example1_1_animation_url.html', html);
+  for (const token of tokens) {
+    const tokenId = token.tokenId;
+    console.log('# check tokenURI', tokenId);
+    const pathPrefix = `./output/Example1_ID${tokenId}_`;
+    const uri = await contract.tokenURI(tokenId);
+    writeFileSync(pathPrefix + 'token_uri.txt', uri);
+    const json = decodeURIComponent(uri.slice('data:application/json,'.length));
+    writeFileSync(pathPrefix + 'metadata.json', json);
+    const metadata = JSON.parse(json);
+    const html = decodeURIComponent(metadata.animation_url.slice('data:text/html,'.length));
+    writeFileSync(pathPrefix + 'animation_url.html', html);
+  }
 
   console.log('done!');
 }
