@@ -4,9 +4,9 @@ Examples of fully on-chain p5.js NFT using [scripty.sol](https://github.com/inta
 
 ## Example1
 
-<img src="image/sketch1.png" width="300">
-<img src="image/sketch2.png" width="300">
-<img src="image/sketch3.png" width="300">
+![](image/sketch1.png)
+![](image/sketch2.png)
+![](image/sketch3.png)
 
 [OpenSea](https://testnets.opensea.io/ja/assets/goerli/0x85f04037ab31e9af211e777675b7d24cfe4a8172/1)  
 [Etherscan](https://goerli.etherscan.io/address/0x85f04037ab31e9af211e777675b7d24cfe4a8172#code)
@@ -15,9 +15,9 @@ Sketch files are uploaded to EthFS.
 
 ## Example2 (Generative NFT)
 
-<img src="image/example2-1.png" width="300">
-<img src="image/example2-2.png" width="300">
-<img src="image/example2-3.png" width="300">
+![](image/example2-1.png)
+![](image/example2-2.png)
+![](image/example2-3.png)
 
 [OpenSea](https://testnets.opensea.io/ja/assets/goerli/0xc0aa1dfe5d3548a641f77d288ef857956ad9a4a9/1)  
 [Etherscan](https://goerli.etherscan.io/address/0xc0aa1dfe5d3548a641f77d288ef857956ad9a4a9#code)
