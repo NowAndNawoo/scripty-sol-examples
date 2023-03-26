@@ -1,10 +1,4 @@
-import { ethers } from 'hardhat';
-import {
-  ETHFS_STORAGE_ADDRESS_GOERLI,
-  SCRIPTY_BUILDER_ADDRESS_GOERLI,
-  SCRIPTY_STORAGE_ADDRESS_GOERLI,
-} from '../lib/constants';
-import { waitDeployed, waitTx } from '../lib/common';
+import { ethers, network } from 'hardhat';
 import { writeFileSync } from 'fs';
 
 async function main() {
